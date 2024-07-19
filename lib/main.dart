@@ -57,7 +57,7 @@ class _VehicleNumberScreenState extends State<VehicleNumberScreen> {
         _errorMessage = 'API limit exceeded. Please upgrade your plan.';
       } else {
         _vehicleDetails = {};
-        _errorMessage = 'An error occurred: ${response.statusCode}';
+        _errorMessage = 'An error occurred: ${response.statusCode}'; //error handeling
       }
     });
   }
