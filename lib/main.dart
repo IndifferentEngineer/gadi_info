@@ -24,6 +24,7 @@ class _VehicleNumberScreenState extends State<VehicleNumberScreen> {
   final TextEditingController _controller = TextEditingController();
   Map<String, dynamic> _vehicleDetails = {};
   bool _loading = false;
+  String _errorMessage = '';
 
   // Function to fetch vehicle details from the API
   Future<void> _fetchVehicleDetails(String vehicleNumber) async {
@@ -35,13 +36,14 @@ class _VehicleNumberScreenState extends State<VehicleNumberScreen> {
     });
 
     final headers = {
-      'x-rapidapi-key': "your api key",
+      'x-rapidapi-key': "0a55bb9d1emsh271eada9805e210p1e0ee6jsn23eaedfb9e86",
       'x-rapidapi-host': "rto-vehicle-information-verification-india.p.rapidapi.com",
       'Content-Type': "application/json"
     };
 
     setState(() {
       _loading = true;
+      _errorMessage = '';
     });
 
     final response = await http.post(url, headers: headers, body: payload);
@@ -50,8 +52,12 @@ class _VehicleNumberScreenState extends State<VehicleNumberScreen> {
       _loading = false;
       if (response.statusCode == 200) {
         _vehicleDetails = jsonDecode(response.body)['result'];
+      } else if (response.statusCode == 429) {
+        _vehicleDetails = {};
+        _errorMessage = 'API limit exceeded. Please upgrade your plan.';
       } else {
         _vehicleDetails = {};
+        _errorMessage = 'An error occurred: ${response.statusCode}';
       }
     });
   }
@@ -88,6 +94,8 @@ class _VehicleNumberScreenState extends State<VehicleNumberScreen> {
             SizedBox(height: 20),
             _loading
                 ? CircularProgressIndicator()
+                : _errorMessage.isNotEmpty
+                ? Text(_errorMessage, style: TextStyle(color: Colors.red))
                 : _vehicleDetails.isNotEmpty
                 ? Expanded(
               child: ListView(
