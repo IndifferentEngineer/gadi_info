@@ -78,8 +78,6 @@ dependencies:
 
 For more details, issues, or contributions, visit the [GitHub repository](https://github.com/IndifferentEngineer/gadi_info).
 
-## License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 ---
