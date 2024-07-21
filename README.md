@@ -1,181 +1,85 @@
-# Vehicle Information Fetcher
+Here's a README file for your Flutter project:
 
-This Flutter project allows users to fetch vehicle details by entering a vehicle number. The app makes use of the AITAN Labs API for fetching the vehicle information.
+---
+
+# Vehicle Information App
+
+## Description
+
+This Flutter application allows users to enter a vehicle number and fetch details from an external API. It uses the `http` package for making network requests and displays the retrieved information in a user-friendly interface.
 
 ## Features
 
-- **User Input**: Allows users to enter a vehicle number.
-- **API Integration**: Fetches vehicle details from the AITAN Labs API.
-- **Loading Indicator**: Displays a loading indicator while fetching data.
-- **Error Handling**: Handles API errors, including rate limit exceedance.
-- **Vehicle Details Display**: Displays fetched vehicle details in a list format.
+- Enter a vehicle number to retrieve details.
+- Displays vehicle information or error messages.
+- Handles loading states and API errors gracefully.
 
-## Installation
+## Dependencies
+
+```yaml
+dependencies:
+  http: ^0.13.0
+  flutter:
+    sdk: flutter
+  cupertino_icons: ^1.0.6
+```
+
+## Setup
 
 1. **Clone the repository:**
+
    ```bash
-   git clone https://github.com/IndifferentEngineer/vehicle-information-fetcher.git
-   cd vehicle-information-fetcher
+   git clone https://github.com/IndifferentEngineer/gadi_info.git
+   cd gadi_info
    ```
 
 2. **Install dependencies:**
+
    ```bash
    flutter pub get
    ```
 
-3. **Run the app:**
+3. **Update API Key:**
+
+   Replace `"your api key"` in the code with your actual API key from RapidAPI. You can find it in your RapidAPI account.
+
+   ```dart
+   final headers = {
+     'x-rapidapi-key': "your api key",
+     'x-rapidapi-host': "rto-vehicle-information-verification-india.p.rapidapi.com",
+     'Content-Type': "application/json"
+   };
+   ```
+
+4. **Run the app:**
+
    ```bash
    flutter run
    ```
 
-## Usage
+## Code Explanation
 
-1. **Enter Vehicle Number**: Enter the vehicle number in the input field.
-2. **Fetch Details**: Press the 'OK' button to fetch the vehicle details.
-3. **View Details**: The fetched details will be displayed below the input field.
+- **Main Function:**
 
-## Code Overview
+  Starts the app and sets `VehicleNumberScreen` as the home widget.
 
-### Main Entry Point
+- **VehicleNumberScreen Widget:**
 
-```dart
-void main() {
-  runApp(MyApp());
-}
-```
+  - Contains a `TextField` for inputting the vehicle number.
+  - An `ElevatedButton` triggers the API call.
+  - Displays a `CircularProgressIndicator` while loading.
+  - Shows either the vehicle details, an error message, or a prompt to enter a vehicle number.
 
-### MyApp Widget
+- **API Call:**
 
-This is the root widget of the application.
-
-```dart
-class MyApp extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      home: VehicleNumberScreen(),
-    );
-  }
-}
-```
-
-### VehicleNumberScreen Widget
-
-This widget contains the main functionality of the app.
-
-```dart
-class VehicleNumberScreen extends StatefulWidget {
-  @override
-  _VehicleNumberScreenState createState() => _VehicleNumberScreenState();
-}
-
-class _VehicleNumberScreenState extends State<VehicleNumberScreen> {
-  final TextEditingController _controller = TextEditingController();
-  Map<String, dynamic> _vehicleDetails = {};
-  bool _loading = false;
-  String _errorMessage = '';
-
-  Future<void> _fetchVehicleDetails(String vehicleNumber) async {
-    final url = Uri.parse("https://rto-vehicle-information-verification-india.p.rapidapi.com/api/v1/rc/vehicleinfo");
-    final payload = jsonEncode({
-      "reg_no": vehicleNumber,
-      "consent": "Y",
-      "consent_text": "I hear by declare my consent agreement for fetching my information via AITAN Labs API"
-    });
-
-    final headers = {
-      'x-rapidapi-key': "your api key",
-      'x-rapidapi-host': "rto-vehicle-information-verification-india.p.rapidapi.com",
-      'Content-Type': "application/json"
-    };
-
-    setState(() {
-      _loading = true;
-      _errorMessage = '';
-    });
-
-    final response = await http.post(url, headers: headers, body: payload);
-
-    setState(() {
-      _loading = false;
-      if (response.statusCode == 200) {
-        _vehicleDetails = jsonDecode(response.body)['result'];
-      } else if (response.statusCode == 429) {
-        _vehicleDetails = {};
-        _errorMessage = 'API limit exceeded. Please upgrade your plan.';
-      } else {
-        _vehicleDetails = {};
-        _errorMessage = 'An error occurred: ${response.statusCode}';
-      }
-    });
-  }
-
-  void _handleOkPress() {
-    final vehicleNumber = _controller.text;
-    if (vehicleNumber.isNotEmpty) {
-      _fetchVehicleDetails(vehicleNumber);
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Vehicle Number Input'),
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          children: <Widget>[
-            TextField(
-              controller: _controller,
-              decoration: InputDecoration(
-                labelText: 'Enter Vehicle Number',
-              ),
-            ),
-            SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: _handleOkPress,
-              child: Text('OK'),
-            ),
-            SizedBox(height: 20),
-            _loading
-                ? CircularProgressIndicator()
-                : _errorMessage.isNotEmpty
-                ? Text(_errorMessage, style: TextStyle(color: Colors.red))
-                : _vehicleDetails.isNotEmpty
-                ? Expanded(
-              child: ListView(
-                children: _vehicleDetails.entries
-                    .map((entry) => ListTile(
-                  title: Text(entry.key),
-                  subtitle: Text(entry.value.toString()),
-                ))
-                    .toList(),
-              ),
-            )
-                : Text('Enter a vehicle number to see details.'),
-          ],
-        ),
-      ),
-    );
-  }
-}
-```
-
-## Dependencies
-
-- `flutter/material.dart`
-- `dart:convert`
-- `package:http/http.dart` as `http`
-
-## API Key
-
-Replace `'your api key'` with your actual API key in the `_fetchVehicleDetails` method.
+  Uses the `http` package to make a POST request to the API endpoint with the vehicle number and necessary headers. Handles different response scenarios including successful data retrieval and errors.
 
 ## GitHub Repository
 
-For more details and to contribute, visit the [GitHub repository](https://github.com/IndifferentEngineer/vehicle-information-fetcher).
+For more details, issues, or contributions, visit the [GitHub repository](https://github.com/IndifferentEngineer/gadi_info).
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 ---
-
